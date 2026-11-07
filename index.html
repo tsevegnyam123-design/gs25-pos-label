@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="mn">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light">
+<title>GS25 · CFF бараа бүтээгдэхүүний цаг</title>
+<style>
+  :root{font-family:Arial,"Noto Sans",sans-serif;color:#18243a;background:#f4f7fb}
+  *{box-sizing:border-box}
+  body{margin:0}
+  .app{max-width:1100px;margin:auto;padding:30px 20px}
+  .head{margin-bottom:22px}
+  .head small{color:#048b9a;font-weight:800;letter-spacing:.14em}
+  h1{font-size:clamp(24px,4vw,34px);margin:8px 0}
+  .muted{color:#63738a;line-height:1.5}
+  .layout{display:grid;grid-template-columns:minmax(280px,1fr) minmax(310px,1fr);gap:20px;align-items:start}
+  .panel{background:#fff;border:1px solid #dfe6ef;border-radius:16px;padding:24px;box-shadow:0 6px 25px #1a34400b}
+  h2{margin:0 0 12px;font-size:19px}
+  label{font-weight:700;display:block;margin:16px 0 8px}
+  select,input[type=number]{font:inherit;color:inherit;border:1px solid #bfcbda;border-radius:9px;padding:12px;width:100%;background:#fff}
+  select{font-size:16px;min-height:54px}
+  .clockline{background:#eafaFC;border-radius:10px;margin:17px 0;padding:12px;font-size:14px;color:#175e70}
+  #clock{font-size:19px;font-weight:800;font-variant-numeric:tabular-nums}
+  .auto{display:flex;align-items:flex-start;gap:9px;line-height:1.4;font-weight:400;cursor:pointer}
+  .auto input{height:20px;width:20px;margin:0;accent-color:#087aaf}
+  button{border:0;border-radius:10px;background:#076ed0;color:#fff;font:inherit;font-weight:800;padding:16px;width:100%;cursor:pointer}
+  button:disabled{background:#bcc8d7;cursor:not-allowed}
+  button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid #6dc5dc;outline-offset:2px}
+  .tip{font-size:12px;color:#65778d;line-height:1.5}
+  details{border-top:1px solid #e1e7ef;margin-top:22px;padding-top:16px}
+  summary{cursor:pointer;font-weight:700}
+  .settings{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .settings label{font-size:12px}
+  .preview-head{display:flex;justify-content:space-between;align-items:center;gap:12px}
+  .chip{background:#eef3ff;color:#3153aa;border-radius:40px;padding:6px 10px;font-size:12px;font-weight:800}
+  .stage{background:#eaf0f6;border-radius:12px;padding:18px 8px;display:flex;justify-content:center;overflow-x:auto}
+  .receipt{width:80mm;min-width:80mm;background:#fff;color:#000;padding:2mm 5mm;font-family:Arial,"Noto Sans",sans-serif;box-shadow:0 3px 14px #1b32451f}
+  .receipt-title{font-size:15px;font-weight:800;letter-spacing:-.3px;white-space:nowrap}
+  .brand-date{display:flex;align-items:flex-end;justify-content:space-between;min-height:23mm;padding:1mm 0 2mm}
+  .logo{font:900 48px/.76 Arial,sans-serif;letter-spacing:-3px}
+  .logo .gs{color:#3478e6;display:block}
+  .logo .twentyfive{color:#08c8cd;display:block}
+  #date{font-style:italic;font-size:17px;font-variant-numeric:tabular-nums;white-space:nowrap;margin-bottom:2mm}
+  table{width:100%;border-collapse:collapse;table-layout:fixed}
+  th,td{border:.8px solid #000;padding:1.2mm 1mm;vertical-align:middle}
+  th{width:46%;font-size:17px;line-height:1.06;text-align:left;white-space:nowrap;letter-spacing:-.55px}
+  td{font-size:19px;text-align:center;font-variant-numeric:tabular-nums;line-height:1.12}
+  .name-row{height:17mm}
+  #prod-label{text-align:left;font-size:11px;overflow-wrap:anywhere;vertical-align:bottom}
+  .next-date{display:block;font-size:10px;line-height:1.1}
+  @media(max-width:760px){
+    .app{padding:20px 12px}.layout{grid-template-columns:1fr}.panel{padding:18px}
+  }
+  @page{size:80mm 85mm;margin:0}
+  @media print{
+    :root,body{background:#fff!important}
+    html,body{margin:0!important;padding:0!important;width:80mm}
+    .app{width:80mm;margin:0;padding:0}
+    .screen-only,.control-panel,.preview-head,.preview-note{display:none!important}
+    .layout,.preview-panel,.stage{display:block;border:0;border-radius:0;padding:0;margin:0;box-shadow:none;background:#fff;width:80mm;overflow:visible}
+    .receipt{width:80mm;min-width:80mm;padding:2mm 5mm;margin:0;box-shadow:none;print-color-adjust:exact;-webkit-print-color-adjust:exact}
+    .logo .gs,.logo .twentyfive{color:#000!important}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="head screen-only">
+    <small>GS25 · CFF</small>
+    <h1>Бараа бүтээгдэхүүний цаг хэвлэх</h1>
+    <div class="muted">Бараагаа сонгоход тухайн үеийн цагийг авч, болох болон устгах цагийг автоматаар тооцоолно.</div>
+  </header>
+  <main class="layout">
+    <section class="panel control-panel screen-only" aria-label="Хэвлэх тохиргоо">
+      <h2>1. Бараагаа сонгох</h2>
+      <label for="product">Барааны нэр</label>
+      <select id="product">
+        <option value="">— Бараа сонгох —</option>
+        <option>Мантуун бууз / үхэр /</option>
+        <option>Пеппероны бууз</option>
+        <option>Мантуун бууз / булгуги /</option>
+        <option>Мантуун бууз / кимчи /</option>
+        <option>Дакгалби бууз</option>
+        <option>Халуун ногоотой зайдастай ороомог</option>
+        <option>Чийз ороомог</option>
+        <option>Жигнэсэн ороомог</option>
+      </select>
+      <div class="clockline">Төхөөрөмжийн одоогийн цаг: <strong id="clock">--:--:--</strong></div>
+      <label class="auto" for="autoprint"><input type="checkbox" id="autoprint" checked><span>Бараа сонгомогц хэвлэх цонх нээх</span></label>
+      <button type="button" id="print" disabled>Одоогийн цагаар хэвлэх</button>
+      <p class="tip">SLK-TS400 дээр 80 мм цаас, 100% масштаб, margins = None / 0, headers and footers = Off сонгоно. Принтерийн драйвер компьютер дээр суусан байх ёстой.</p>
+      <details>
+        <summary>Цагийн тохиргоо</summary>
+        <div class="settings">
+          <label for="ready">Болох цаг (минут)<input type="number" id="ready" min="0" max="1440" step="1" value="60"></label>
+          <label for="discard">Устгах цаг (цаг)<input type="number" id="discard" min="0" max="168" step="0.5" value="6"></label>
+        </div>
+        <p class="tip">+1 цаг, +6 цаг нь таны зургийн жишээ. Бодит бүтээгдэхүүний аюулгүй хугацааг байгууллагын баталсан журмаар тохируулна.</p>
+      </details>
+    </section>
+    <section class="panel preview-panel" aria-label="Шошгын загвар">
+      <div class="preview-head screen-only"><h2>2. Хэвлэх загвар</h2><span class="chip">80 мм POS</span></div>
+      <div class="stage">
+        <div class="receipt" id="receipt">
+          <div class="receipt-title">CFF Бараа бүтээгдэхүүний цаг</div>
+          <div class="brand-date">
+            <div class="logo" aria-label="GS25"><span class="gs">GS</span><span class="twentyfive">25</span></div>
+            <div id="date">--/--/----</div>
+          </div>
+          <table><tbody>
+            <tr class="name-row"><th scope="row">Барааны нэр</th><td id="prod-label">Бараа сонгоно уу</td></tr>
+            <tr><th scope="row">Жигнэсэн цаг</th><td id="start">--:--:--</td></tr>
+            <tr><th scope="row">Болох цаг</th><td id="done">--:--:--</td></tr>
+            <tr><th scope="row">Устгах цаг</th><td id="end">--:--:--</td></tr>
+          </tbody></table>
+        </div>
+      </div>
+      <p class="tip preview-note screen-only">SEWOO SLK-TS400 · 80 мм цаас · 72 мм хүртэлх хэвлэх талбай.</p>
+    </section>
+  </main>
+  <p class="tip screen-only">Цагийг компьютер эсвэл утасны системийн цагаас авна. Хэвлэх нь браузерын хэвлэх цонхоор ажиллана.</p>
+</div>
+<script>
+(function(){
+  "use strict";
+  const el = id => document.getElementById(id);
+  const product=el("product"), print=el("print"), auto=el("autoprint");
+  const pad=n=>String(n).padStart(2,"0");
+  const time=d=>pad(d.getHours())+":"+pad(d.getMinutes())+":"+pad(d.getSeconds());
+  const date=d=>(d.getMonth()+1)+"/"+d.getDate()+"/"+d.getFullYear();
+  const day=d=>d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate());
+  const minutes=(d,n)=>new Date(d.getTime()+n*60000);
+  function num(id,fallback,max) {
+    const input=el(id), n=Number(input.value);
+    return input.value.trim()!==""&&Number.isFinite(n)&&n>=0&&n<=max?n:fallback;
+  }
+  function setTime(id,d,base){
+    const node=el(id);
+    node.textContent=time(d);
+    if(day(d)!==day(base)){
+      const small=document.createElement("small");
+      small.className="next-date";
+      small.textContent="("+date(d)+")";
+      node.appendChild(small);
+    }
+  }
+  function updateLabel(){
+    if(!product.value) return false;
+    const now=new Date();
+    el("date").textContent=date(now);
+    el("prod-label").textContent=product.value;
+    setTime("start",now,now);
+    setTime("done",minutes(now,num("ready",60,1440)),now);
+    setTime("end",minutes(now,num("discard",6,168)*60),now);
+    return true;
+  }
+  function printNow(){if(updateLabel())window.print();}
+  product.addEventListener("change",function(){
+    print.disabled=!product.value;
+    if(!product.value){el("prod-label").textContent="Бараа сонгоно уу";return;}
+    updateLabel();
+    if(auto.checked)printNow();
+  });
+  print.addEventListener("click",printNow);
+  ["ready","discard"].forEach(function(id){el(id).addEventListener("change",updateLabel);});
+  el("date").textContent=date(new Date());
+  function clock(){el("clock").textContent=time(new Date());}
+  clock();
+  setInterval(clock,1000);
+})();
+</script>
+</body>
+</html>
