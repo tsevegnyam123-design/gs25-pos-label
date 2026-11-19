@@ -49,6 +49,7 @@
   .name-row{height:17mm}
   #prod-label{text-align:left;font-size:11px;overflow-wrap:anywhere;vertical-align:bottom}
   .next-date{display:block;font-size:10px;line-height:1.1}
+  .receipt tr[hidden]{display:none!important}
   @media(max-width:760px){
     .app{padding:20px 12px}.layout{grid-template-columns:1fr}.panel{padding:18px}
   }
@@ -69,7 +70,7 @@
   <header class="head screen-only">
     <small>GS25 · CFF</small>
     <h1>Бараа бүтээгдэхүүний цаг хэвлэх</h1>
-    <div class="muted">Бараагаа сонгоход тухайн үеийн цагийг авч, болох болон устгах цагийг автоматаар тооцоолно.</div>
+    <div class="muted">Бараагаа сонгоход тухайн үеийн цагийг авч, бүтээгдэхүүний төрлөөр болох болон устгах цагийг автоматаар тооцоолно.</div>
   </header>
   <main class="layout">
     <section class="panel control-panel screen-only" aria-label="Хэвлэх тохиргоо">
@@ -85,9 +86,14 @@
         <option>Халуун ногоотой зайдастай ороомог</option>
         <option>Чийз ороомог</option>
         <option>Жигнэсэн ороомог</option>
+        <option>Хотдог гич</option>
+        <option>Хотдог кепчуп</option>
+        <option>Хотдог /Үхэр/</option>
+        <option>Хотдог тахиа</option>
       </select>
       <div class="clockline">Төхөөрөмжийн одоогийн цаг: <strong id="clock">--:--:--</strong></div>
       <label class="auto" for="autoprint"><input type="checkbox" id="autoprint" checked><span>Бараа сонгомогц хэвлэх цонх нээх</span></label>
+      <div class="tip" id="product-rule" aria-live="polite">Хотдогийн устгах цаг +72 цаг; болох цаг байхгүй. Бусад барааны хугацааг доорх тохиргоогоор удирдана.</div>
       <button type="button" id="print" disabled>Одоогийн цагаар хэвлэх</button>
       <p class="tip">SLK-TS400 дээр 80 мм цаас, 100% масштаб, margins = None / 0, headers and footers = Off сонгоно. Принтерийн драйвер компьютер дээр суусан байх ёстой.</p>
       <details>
@@ -96,7 +102,7 @@
           <label for="ready">Болох цаг (минут)<input type="number" id="ready" min="0" max="1440" step="1" value="60"></label>
           <label for="discard">Устгах цаг (цаг)<input type="number" id="discard" min="0" max="168" step="0.5" value="6"></label>
         </div>
-        <p class="tip">+1 цаг, +6 цаг нь таны зургийн жишээ. Бодит бүтээгдэхүүний аюулгүй хугацааг байгууллагын баталсан журмаар тохируулна.</p>
+        <p class="tip">Энэ тохиргоо зөвхөн эхний 8 бараанд үйлчилнэ. Хотдогийн устгах цаг тогтмол +72 цаг, болох цаг байхгүй. Бүтээгдэхүүний хадгалах болон устгах хугацааг байгууллагын баталсан журмаар баталгаажуулна.</p>
       </details>
     </section>
     <section class="panel preview-panel" aria-label="Шошгын загвар">
@@ -110,8 +116,8 @@
           </div>
           <table><tbody>
             <tr class="name-row"><th scope="row">Барааны нэр</th><td id="prod-label">Бараа сонгоно уу</td></tr>
-            <tr><th scope="row">Жигнэсэн цаг</th><td id="start">--:--:--</td></tr>
-            <tr><th scope="row">Болох цаг</th><td id="done">--:--:--</td></tr>
+            <tr><th scope="row" id="start-label">Жигнэсэн цаг</th><td id="start">--:--:--</td></tr>
+            <tr id="ready-row"><th scope="row">Болох цаг</th><td id="done">--:--:--</td></tr>
             <tr><th scope="row">Устгах цаг</th><td id="end">--:--:--</td></tr>
           </tbody></table>
         </div>
@@ -126,6 +132,7 @@
   "use strict";
   const el = id => document.getElementById(id);
   const product=el("product"), print=el("print"), auto=el("autoprint");
+  const hotdogs=new Set(["Хотдог гич","Хотдог кепчуп","Хотдог /Үхэр/","Хотдог тахиа"]);
   const pad=n=>String(n).padStart(2,"0");
   const time=d=>pad(d.getHours())+":"+pad(d.getMinutes())+":"+pad(d.getSeconds());
   const date=d=>(d.getMonth()+1)+"/"+d.getDate()+"/"+d.getFullYear();
@@ -150,9 +157,15 @@
     const now=new Date();
     el("date").textContent=date(now);
     el("prod-label").textContent=product.value;
+    const isHotdog=hotdogs.has(product.value);
+    el("ready-row").hidden=isHotdog;
+    el("start-label").textContent=isHotdog?"Бүртгэсэн цаг":"Жигнэсэн цаг";
+    el("product-rule").textContent=isHotdog
+      ?"Хотдог: болох цаг байхгүй; устгах цаг нь бүртгэсэн цагаас 72 цагийн дараа."
+      :"Энэ бараа: болох цаг +"+num("ready",60,1440)+" минут, устгах цаг +"+num("discard",6,168)+" цаг.";
     setTime("start",now,now);
-    setTime("done",minutes(now,num("ready",60,1440)),now);
-    setTime("end",minutes(now,num("discard",6,168)*60),now);
+    if(!isHotdog) setTime("done",minutes(now,num("ready",60,1440)),now);
+    setTime("end",minutes(now,(isHotdog?72:num("discard",6,168))*60),now);
     return true;
   }
   function printNow(){if(updateLabel())window.print();}
