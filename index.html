@@ -36,24 +36,25 @@
   .chip{background:#eef3ff;color:#3153aa;border-radius:40px;padding:6px 10px;font-size:12px;font-weight:800}
   .stage{background:#eaf0f6;border-radius:12px;padding:18px 8px;display:flex;justify-content:center;overflow-x:auto}
   .receipt{width:80mm;min-width:80mm;background:#fff;color:#000;padding:2mm 5mm;font-family:Arial,"Noto Sans",sans-serif;box-shadow:0 3px 14px #1b32451f}
-  .receipt-title{font-size:15px;font-weight:800;letter-spacing:-.3px;white-space:nowrap}
+  .receipt-title{font-size:16px;font-weight:800;letter-spacing:-.3px;white-space:normal;line-height:1.12}
   .brand-date{display:flex;align-items:flex-end;justify-content:space-between;min-height:23mm;padding:1mm 0 2mm}
-  .logo{font:900 48px/.76 Arial,sans-serif;letter-spacing:-3px}
-  .logo .gs{color:#3478e6;display:block}
-  .logo .twentyfive{color:#08c8cd;display:block}
+  .logo{display:flex;flex-direction:column;align-items:flex-start;justify-content:flex-end;font:900 47px/.82 Arial,sans-serif;letter-spacing:-2.5px;flex:none}
+  .logo .gs{color:#3478e6;display:block;font-size:47px}
+  .logo .twentyfive{color:#08c8cd;display:block;font-size:47px;margin-top:1px}
   #date{font-style:italic;font-size:17px;font-variant-numeric:tabular-nums;white-space:nowrap;margin-bottom:2mm}
   table{width:100%;border-collapse:collapse;table-layout:fixed}
   th,td{border:.8px solid #000;padding:1.2mm 1mm;vertical-align:middle}
   th{width:46%;font-size:17px;line-height:1.06;text-align:left;white-space:nowrap;letter-spacing:-.55px}
   td{font-size:19px;text-align:center;font-variant-numeric:tabular-nums;line-height:1.12}
   .name-row{height:17mm}
-  #prod-label{text-align:left;font-size:11px;overflow-wrap:anywhere;vertical-align:bottom}
+  #prod-label{text-align:left;font-size:14px;font-weight:600;overflow-wrap:anywhere;vertical-align:middle;line-height:1.25}
+  #employee-label{text-align:left;font-size:14px;height:8mm}
   .next-date{display:block;font-size:10px;line-height:1.1}
   .receipt tr[hidden]{display:none!important}
   @media(max-width:760px){
     .app{padding:20px 12px}.layout{grid-template-columns:1fr}.panel{padding:18px}
   }
-  @page{size:80mm 85mm;margin:0}
+  @page{size:80mm 90mm;margin:0}
   @media print{
     :root,body{background:#fff!important}
     html,body{margin:0!important;padding:0!important;width:80mm}
@@ -110,7 +111,7 @@
       <div class="preview-head screen-only"><h2>2. Хэвлэх загвар</h2><span class="chip">80 мм POS</span></div>
       <div class="stage">
         <div class="receipt" id="receipt">
-          <div class="receipt-title">CFF Бараа бүтээгдэхүүний цаг</div>
+          <div class="receipt-title" id="receipt-title">CFF Бараа бүтээгдэхүүний цаг</div>
           <div class="brand-date">
             <div class="logo" aria-label="GS25"><span class="gs">GS</span><span class="twentyfive">25</span></div>
             <div id="date">--/--/----</div>
@@ -120,6 +121,7 @@
             <tr><th scope="row" id="start-label">Жигнэсэн цаг</th><td id="start">--:--:--</td></tr>
             <tr id="ready-row"><th scope="row">Болох цаг</th><td id="done">--:--:--</td></tr>
             <tr><th scope="row">Устгах цаг</th><td id="end">--:--:--</td></tr>
+            <tr><th scope="row">Ажилтан</th><td id="employee-label"></td></tr>
           </tbody></table>
         </div>
       </div>
@@ -135,6 +137,13 @@
   const product=el("product"), print=el("print"), auto=el("autoprint");
   const hotdogs=new Set(["Хотдог гич","Хотдог кепчуп","Хотдог /Үхэр/","Хотдог тахиа"]);
   const sauce="Хотдогны соус";
+  const sampleHotdogs=new Set(["Хотдог /Үхэр/","Хотдог тахиа"]);
+  const sauceItems=new Set(["Хотдог гич","Хотдог кепчуп","Хотдогны соус"]);
+  function titleForProduct(name){
+    if(sampleHotdogs.has(name)) return "Дээжний цаг";
+    if(sauceItems.has(name)) return "Соусны цэг";
+    return "CFF Бараа бүтээгдэхүүний цаг";
+  }
   const pad=n=>String(n).padStart(2,"0");
   const time=d=>pad(d.getHours())+":"+pad(d.getMinutes())+":"+pad(d.getSeconds());
   const date=d=>(d.getMonth()+1)+"/"+d.getDate()+"/"+d.getFullYear();
@@ -159,6 +168,7 @@
     const now=new Date();
     el("date").textContent=date(now);
     el("prod-label").textContent=product.value;
+    el("receipt-title").textContent=titleForProduct(product.value);
     const isHotdog=hotdogs.has(product.value);
     const isSauce=product.value===sauce;
     const noReady=isHotdog||isSauce;
@@ -178,7 +188,7 @@
   function printNow(){if(updateLabel())window.print();}
   product.addEventListener("change",function(){
     print.disabled=!product.value;
-    if(!product.value){el("prod-label").textContent="Бараа сонгоно уу";return;}
+    if(!product.value){el("prod-label").textContent="Бараа сонгоно уу";el("receipt-title").textContent="CFF Бараа бүтээгдэхүүний цаг";return;}
     updateLabel();
     if(auto.checked)printNow();
   });
